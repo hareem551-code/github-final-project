@@ -1,15 +1,198 @@
-function Products() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-16">
-      <h1 className="text-4xl font-bold">
-        Products
-      </h1>
+const products = [
+  {
+    id: 1,
+    name: "iPhone",
+    category: "Smartphones",
+    price: 699,
+    oldPrice: 799,
+    rating: 4.8,
+    reviews: 125,
+    vendor: "Mobile World",
+    image: "/src/assets/Product/iphone.jpeg",
+    description:
+      "Latest smartphone with powerful performance, excellent camera and long battery life.",
+    stock: 25,
+  },
 
-      <p className="mt-4 text-gray-500">
-        All electronics products will appear here.
-      </p>
-    </div>
-  );
-}
+  {
+    id: 2,
+    name: "Laptop",
+    category: "Laptops",
+    price: 899,
+    oldPrice: 1099,
+    rating: 4.7,
+    reviews: 98,
+    vendor: "Digital World",
+    image: "/src/assets/Product/laptop.jpeg",
+    description:
+      "Powerful laptop for work, study, entertainment and everyday computing.",
+    stock: 15,
+  },
 
-export default Products;
+  {
+    id: 3,
+    name: "Wireless Headphones",
+    category: "Audio",
+    price: 79,
+    oldPrice: 119,
+    rating: 4.6,
+    reviews: 156,
+    vendor: "Audio Hub",
+    image: "/src/assets/Product/headphone.jpeg",
+    description:
+      "Comfortable wireless headphones with high-quality sound and long battery life.",
+    stock: 40,
+  },
+
+  {
+    id: 4,
+    name: "Smartwatch",
+    category: "Wearables",
+    price: 129,
+    oldPrice: 179,
+    rating: 4.5,
+    reviews: 87,
+    vendor: "Smart Tech",
+    image: "/src/assets/Product/smartwatch.jpeg",
+    description:
+      "Modern smartwatch with fitness tracking, notifications and health features.",
+    stock: 30,
+  },
+
+  {
+    id: 5,
+    name: "Digital Camera",
+    category: "Cameras",
+    price: 549,
+    oldPrice: 649,
+    rating: 4.7,
+    reviews: 73,
+    vendor: "Camera House",
+    image: "/src/assets/Product/camera.jpeg",
+    description:
+      "High-quality digital camera for photography and professional content creation.",
+    stock: 12,
+  },
+
+  {
+    id: 6,
+    name: "Tablet",
+    category: "Tablets",
+    price: 399,
+    oldPrice: 449,
+    rating: 4.4,
+    reviews: 65,
+    vendor: "Digital World",
+    image: "/src/assets/Product/tablets.jpeg",
+    description:
+      "Portable tablet suitable for entertainment, study and everyday productivity.",
+    stock: 20,
+  },
+
+  {
+    id: 7,
+    name: "Bluetooth Speaker",
+    category: "Audio",
+    price: 59,
+    oldPrice: 89,
+    rating: 4.5,
+    reviews: 112,
+    vendor: "Audio Hub",
+    image: "/src/assets/Product/speaker.jpeg",
+    description:
+      "Portable Bluetooth speaker with powerful sound and wireless connectivity.",
+    stock: 35,
+  },
+
+  {
+    id: 8,
+    name: "Power Bank",
+    category: "Accessories",
+    price: 39,
+    oldPrice: 59,
+    rating: 4.4,
+    reviews: 91,
+    vendor: "Tech Store",
+    image: "/src/assets/Product/powerbank.jpeg",
+    description:
+      "High-capacity power bank for charging smartphones and other devices.",
+    stock: 50,
+  },
+
+  {
+    id: 9,
+    name: "Scanner",
+    category: "Accessories",
+    price: 149,
+    oldPrice: 199,
+    rating: 4.3,
+    reviews: 42,
+    vendor: "Office Tech",
+    image: "/src/assets/Product/scanner.jpeg",
+    description:
+      "Fast and reliable scanner for documents, photos and office work.",
+    stock: 18,
+  },
+
+  {
+    id: 10,
+    name: "Smartphone Pro",
+    category: "Smartphones",
+    price: 799,
+    oldPrice: 899,
+    rating: 4.8,
+    reviews: 143,
+    vendor: "Mobile World",
+    image: "/src/assets/Product/smartphone.jpeg",
+    description:
+      "Premium smartphone with advanced camera, fast processor and large display.",
+    stock: 22,
+  },
+
+  {
+    id: 11,
+    name: "Smart Scanner",
+    category: "Accessories",
+    price: 179,
+    oldPrice: 229,
+    rating: 4.5,
+    reviews: 38,
+    vendor: "Office Tech",
+    image: "/src/assets/Product/smart-scanner.jpeg",
+    description:
+      "Smart scanning device designed for fast and convenient document scanning.",
+    stock: 14,
+  },
+
+  {
+    id: 12,
+    name: "Smart Tablet",
+    category: "Tablets",
+    price: 449,
+    oldPrice: 499,
+    rating: 4.6,
+    reviews: 59,
+    vendor: "Digital World",
+    image: "/src/assets/Product/smart-tablet.jpeg",
+    description:
+      "Modern smart tablet with a large display and powerful performance.",
+    stock: 17,
+  },
+
+  {
+    id: 13,
+    name: "Smart Devices",
+    category: "Wearables",
+    price: 199,
+    oldPrice: 249,
+    rating: 4.7,
+    reviews: 76,
+    vendor: "Smart Tech",
+    image: "/src/assets/Product/images2.jpeg",
+    description:
+      "Modern smart technology device designed for everyday convenience.",
+    stock: 28,
+  },
+];
+
+export default products;

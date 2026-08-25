@@ -1,67 +1,72 @@
 function Footer() {
   return (
-    <footer className="bg-slate-950 text-white">
+    <footer className="bg-pink-200 text-white">
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
 
-        <div className="grid md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
 
           <div>
             <h2 className="text-2xl font-bold text-blue-400">
-              ElectroMart
+              ElectroMarket
             </h2>
 
             <p className="text-gray-400 mt-4">
-              Your multi-vendor marketplace for electronics.
+              A multi-vendor marketplace for
+              electronics and technology products.
             </p>
           </div>
-
 
           <div>
             <h3 className="font-bold mb-4">
               Marketplace
             </h3>
 
-            <ul className="space-y-2 text-gray-400">
-              <li>Products</li>
-              <li>Categories</li>
-              <li>Deals</li>
-              <li>Vendors</li>
-            </ul>
-          </div>
+            <p className="text-gray-400 mb-2">
+              Products
+            </p>
 
+            <p className="text-gray-400 mb-2">
+              Categories
+            </p>
+
+            <p className="text-gray-400">
+              Deals
+            </p>
+          </div>
 
           <div>
             <h3 className="font-bold mb-4">
-              Customer
+              Sellers
             </h3>
 
-            <ul className="space-y-2 text-gray-400">
-              <li>My Account</li>
-              <li>Orders</li>
-              <li>Wishlist</li>
-              <li>Help Center</li>
-            </ul>
-          </div>
+            <p className="text-gray-400 mb-2">
+              Become a Seller
+            </p>
 
+            <p className="text-gray-400">
+              Vendor Dashboard
+            </p>
+          </div>
 
           <div>
             <h3 className="font-bold mb-4">
-              Vendor
+              Support
             </h3>
 
-            <ul className="space-y-2 text-gray-400">
-              <li>Become a Vendor</li>
-              <li>Vendor Login</li>
-              <li>Seller Guide</li>
-              <li>Vendor Support</li>
-            </ul>
+            <p className="text-gray-400 mb-2">
+              Contact Us
+            </p>
+
+            <p className="text-gray-400">
+              Help Center
+            </p>
           </div>
 
         </div>
 
-        <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500">
-          © 2026 ElectroMart. All rights reserved.
+        <div className="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400">
+          © 2026 ElectroMarket. All rights reserved.
         </div>
 
       </div>
