@@ -1,10 +1,13 @@
+
 import { Link } from "react-router-dom";
 
-import iphone from "../assets/Product/iphone.jpeg";
-import laptop from "../assets/Product/laptop.jpeg";
-import headphone from "../assets/Product/headphone.jpeg";
-import smartwatch from "../assets/Product/smartwatch.jpeg";
-import camera from "../assets/Product/camera.jpeg";
+import iphone from "../assets/Product/iphone.png";
+import laptop from "../assets/Product/laptop.png";
+import headphone from "../assets/Product/headphone.png";
+import smartwatch from "../assets/Product/smartwatch.png";
+import camera from "../assets/Product/camera.png";
+import latestelectronics from "../assets/Product/latestelectronics.png";
+import gaming from "../assets/Product/gaming.png"
 
 function Home() {
   const categories = [
@@ -30,123 +33,163 @@ function Home() {
     },
     {
       name: "Gaming",
-      image: laptop,
+      image: gaming,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-700 text-white">
 
-      {/* ================= HERO SECTION ================= */}
-      <section className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center min-h-[520px]">
+      {/* =========================================================
+          HERO SECTION
+      ========================================================= */}
+      <section className="relative overflow-hidden border-b border-gray-600 bg-gray-700">
 
-            {/* Hero Content */}
-            <div className="py-12">
+        {/* Background Effects */}
+        <div className="pointer-events-none absolute -right-52 -top-52 h-[600px] w-[600px] rounded-full bg-black/10 blur-3xl" />
 
-              <p className="text-blue-600 font-semibold text-sm md:text-base mb-4 tracking-wide">
+        <div className="pointer-events-none absolute -bottom-60 -left-52 h-[600px] w-[600px] rounded-full bg-white/[0.06] blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+
+          <div className="grid min-h-[680px] grid-cols-1 items-center gap-20 py-20 lg:grid-cols-2 lg:gap-32 lg:py-24">
+
+            {/* ================= HERO CONTENT ================= */}
+            <div className="py-8 lg:py-12">
+
+              <p className="mb-6 text-xs font-bold tracking-[0.25em] text-gray-200 sm:text-sm">
                 MULTI-VENDOR ELECTRONICS MARKETPLACE
               </p>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-gray-900">
-                Everything Electronics.
+              <h1 className="text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl xl:text-[80px]">
+                Everything
+                <br />
+                <span className="text-gray-300">
+                  Electronics.
+                </span>
               </h1>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-500 mt-2">
+              <h2 className="mt-4 text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-gray-100 sm:text-5xl lg:text-6xl xl:text-7xl">
                 All In One Place.
               </h2>
 
-              <p className="text-lg text-gray-600 max-w-xl mt-6 leading-relaxed">
+              <p className="mt-8 max-w-xl text-base leading-7 text-gray-200 sm:text-lg">
                 Discover smartphones, laptops, gaming devices,
                 accessories and electronics from trusted vendors.
               </p>
 
-              {/* Buttons */}
-              <div className="flex flex-wrap gap-4 mt-8">
+
+              {/* ================= HERO BUTTONS ================= */}
+              <div className="mt-14 flex flex-wrap gap-6">
 
                 <Link
                   to="/products"
-                  className="bg-blue-600 text-white px-7 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm"
+                  className="group inline-flex min-h-[54px] items-center justify-center gap-3 rounded-xl bg-black px-9 py-4 text-base font-bold text-white shadow-xl shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:bg-[#171717] hover:shadow-2xl active:translate-y-0"
                 >
-                  Shop Now
+                  <span>Shop Now</span>
+
+                  <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
                 </Link>
+
 
                 <Link
                   to="/vendor"
-                  className="border-2 border-gray-800 text-gray-800 px-7 py-3 rounded-lg font-bold hover:bg-gray-900 hover:text-white transition"
+                  className="inline-flex min-h-[54px] items-center justify-center rounded-xl border border-white/60 bg-white/10 px-9 py-4 text-base font-bold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white hover:text-black hover:shadow-xl active:translate-y-0"
                 >
                   Become a Seller
                 </Link>
 
               </div>
 
-              {/* Small Stats */}
-              <div className="grid grid-cols-3 gap-4 mt-10 max-w-xl">
+
+              {/* ================= STATS ================= */}
+              <div className="mt-20 grid max-w-xl grid-cols-3 gap-10 border-t border-white/30 pt-10 sm:gap-14">
 
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="text-2xl font-black text-white sm:text-3xl">
                     500+
                   </h3>
 
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="mt-2 text-xs font-medium text-gray-200 sm:text-sm">
                     Products
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="text-2xl font-black text-white sm:text-3xl">
                     50+
                   </h3>
 
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="mt-2 text-xs font-medium text-gray-200 sm:text-sm">
                     Vendors
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="text-2xl font-black text-white sm:text-3xl">
                     1000+
                   </h3>
 
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="mt-2 text-xs font-medium text-gray-200 sm:text-sm">
                     Customers
                   </p>
                 </div>
 
               </div>
+
             </div>
 
-            {/* Hero Product Image */}
-            <div className="flex justify-center lg:justify-end py-10">
 
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-5 w-full max-w-md">
+            {/* =====================================================
+                HERO PRODUCT CARD
+            ===================================================== */}
+            <div className="flex justify-center py-12 lg:justify-end lg:py-16">
 
-                <div className="bg-gray-100 rounded-xl h-[300px] flex items-center justify-center overflow-hidden">
+              <div
+                className="group w-full max-w-lg rounded-[32px] border border-white/20 bg-[#202020] p-7 shadow-2xl shadow-black/30 transition-all duration-500 ease-out hover:-translate-y-3 hover:border-white/40 hover:bg-[#242424] sm:p-9"
+              >
+
+                {/* Product Image */}
+                <div className="relative flex h-[320px] items-center justify-center overflow-hidden rounded-[25px] border border-white/10 bg-[#111111] p-8 sm:h-[390px] sm:p-10">
+
+                  {/* Image Glow */}
+                  <div className="pointer-events-none absolute h-64 w-64 rounded-full bg-white/[0.06] blur-3xl" />
 
                   <img
-                    src={laptop}
-                    alt="Latest Laptop"
-                    className="w-full h-full object-contain"
+                    src={latestelectronics}
+                    alt="Latest Electronics"
+                    className="relative h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-110"
                   />
 
                 </div>
 
-                <div className="text-center pt-5">
 
-                  <h2 className="text-2xl font-bold text-gray-900">
+                {/* Product Content */}
+                <div className="px-2 pb-3 pt-10 text-center">
+
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400">
+                    Featured Collection
+                  </p>
+
+                  <h2 className="mt-4 text-2xl font-extrabold text-white sm:text-3xl">
                     Latest Electronics
                   </h2>
 
-                  <p className="text-gray-500 mt-2">
+                  <p className="mt-4 text-sm text-gray-300 sm:text-base">
                     Products from trusted sellers
                   </p>
 
                   <Link
                     to="/products"
-                    className="inline-block mt-4 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition"
+                    className="mt-9 inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl bg-white px-9 py-3.5 font-bold text-black shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-gray-200 hover:shadow-2xl"
                   >
                     Explore Products
+
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
                   </Link>
 
                 </div>
@@ -159,143 +202,171 @@ function Home() {
         </div>
       </section>
 
-      {/* ================= CATEGORY SECTION ================= */}
-      <section className="bg-gray-50 max-w-7xl mx-auto px-6 lg:px-8 py-16">
 
-        <div className="flex justify-between items-end mb-8">
+      {/* =========================================================
+          CATEGORY SECTION
+      ========================================================= */}
+      <section className="bg-gray-700">
 
-          <div>
+        <div className="mx-auto max-w-7xl px-5 py-28 sm:px-8 sm:py-32 lg:px-10">
 
-            <p className="text-blue-600 font-semibold text-sm">
-              SHOP BY CATEGORY
-            </p>
+          {/* Heading */}
+          <div className="mb-20 flex items-end justify-between gap-10">
 
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">
-              Explore Electronics
-            </h2>
+            <div>
 
-            <p className="text-gray-500 mt-2">
-              Find the products you need from different vendors.
-            </p>
+              <p className="text-xs font-bold tracking-[0.22em] text-gray-200 sm:text-sm">
+                SHOP BY CATEGORY
+              </p>
+
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Explore Electronics
+              </h2>
+
+              <p className="mt-4 max-w-xl text-sm text-gray-200 sm:text-base">
+                Find the products you need from different vendors.
+              </p>
+
+            </div>
+
+            <Link
+              to="/categories"
+              className="hidden min-h-[48px] items-center gap-3 rounded-xl border border-white/40 bg-white/10 px-6 py-3 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:text-black md:flex"
+            >
+              View All
+              <span>→</span>
+            </Link>
 
           </div>
 
-          <Link
-            to="/categories"
-            className="hidden md:block text-blue-600 font-semibold hover:text-blue-800"
-          >
-            View All →
-          </Link>
+
+          {/* =====================================================
+              CATEGORY CARDS
+          ===================================================== */}
+         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-10 lg:gap-y-14">
+
+            {categories.map((category) => (
+
+              <Link
+                to="/products"
+                key={category.name}
+                className="group overflow-hidden rounded-[24px] border border-white/15 bg-[#202020] shadow-xl shadow-black/20 transition-all duration-500 ease-out hover:-translate-y-3 hover:border-white/35 hover:bg-[#272727] hover:shadow-2xl hover:shadow-black/40"
+              >
+
+                {/* Image Area */}
+                <div className="relative flex h-44 items-center justify-center overflow-hidden border-b border-white/10 bg-[#141414] p-7">
+
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.07] via-transparent to-transparent" />
+
+                  <div className="pointer-events-none absolute h-28 w-28 rounded-full bg-white/[0.05] blur-2xl" />
+
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="relative h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-110"
+                  />
+
+                </div>
+
+
+                {/* Card Content */}
+                <div className="p-7 text-center">
+
+                  <h3 className="text-base font-bold text-white transition-colors duration-300 group-hover:text-gray-200">
+                    {category.name}
+                  </h3>
+
+                  <p className="mt-3 text-xs text-gray-400">
+                    Explore {category.name}
+                  </p>
+
+                </div>
+
+              </Link>
+
+            ))}
+
+          </div>
 
         </div>
-
-        {/* Categories */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
-
-          {categories.map((category) => (
-
-            <Link
-              to="/products"
-              key={category.name}
-              className="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition duration-300"
-            >
-
-              <div className="h-36 bg-gray-100 flex items-center justify-center p-4">
-
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                />
-
-              </div>
-
-              <div className="p-4 text-center">
-
-                <h3 className="font-bold text-gray-800 group-hover:text-blue-600">
-                  {category.name}
-                </h3>
-
-                <p className="text-xs text-gray-500 mt-1">
-                  Explore {category.name}
-                </p>
-
-              </div>
-
-            </Link>
-
-          ))}
-
-        </div>
-
       </section>
 
-      {/* ================= FEATURES SECTION ================= */}
-      <section className="bg-white border-y border-gray-200">
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14">
+      {/* =========================================================
+          FEATURES SECTION
+      ========================================================= */}
+      <section className="border-y border-gray-600 bg-[#1b1b1b]">
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="mx-auto max-w-7xl px-5 py-28 sm:px-8 sm:py-32 lg:px-10">
 
-            <div className="text-center">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
 
-              <div className="text-3xl mb-3">
+            {/* Feature 1 */}
+            <div className="group rounded-[24px] border border-white/10 bg-[#242424] p-10 text-center shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-white/25 hover:bg-[#292929]">
+
+              <div className="mb-6 text-3xl transition-transform duration-300 group-hover:scale-110">
                 🚚
               </div>
 
-              <h3 className="font-bold text-lg text-gray-900">
+              <h3 className="text-lg font-bold text-white">
                 Fast Delivery
               </h3>
 
-              <p className="text-gray-500 mt-2">
+              <p className="mt-4 text-sm leading-6 text-gray-400">
                 Get your electronics delivered quickly.
               </p>
 
             </div>
 
-            <div className="text-center">
 
-              <div className="text-3xl mb-3">
+            {/* Feature 2 */}
+            <div className="group rounded-[24px] border border-white/10 bg-[#242424] p-10 text-center shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-white/25 hover:bg-[#292929]">
+
+              <div className="mb-6 text-3xl transition-transform duration-300 group-hover:scale-110">
                 🔒
               </div>
 
-              <h3 className="font-bold text-lg text-gray-900">
+              <h3 className="text-lg font-bold text-white">
                 Secure Shopping
               </h3>
 
-              <p className="text-gray-500 mt-2">
+              <p className="mt-4 text-sm leading-6 text-gray-400">
                 Your shopping experience is safe and secure.
               </p>
 
             </div>
 
-            <div className="text-center">
 
-              <div className="text-3xl mb-3">
+            {/* Feature 3 */}
+            <div className="group rounded-[24px] border border-white/10 bg-[#242424] p-10 text-center shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-white/25 hover:bg-[#292929]">
+
+              <div className="mb-6 text-3xl transition-transform duration-300 group-hover:scale-110">
                 🏪
               </div>
 
-              <h3 className="font-bold text-lg text-gray-900">
+              <h3 className="text-lg font-bold text-white">
                 Trusted Vendors
               </h3>
 
-              <p className="text-gray-500 mt-2">
+              <p className="mt-4 text-sm leading-6 text-gray-400">
                 Shop from multiple trusted electronics vendors.
               </p>
 
             </div>
 
-            <div className="text-center">
 
-              <div className="text-3xl mb-3">
+            {/* Feature 4 */}
+            <div className="group rounded-[24px] border border-white/10 bg-[#242424] p-10 text-center shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-white/25 hover:bg-[#292929]">
+
+              <div className="mb-6 text-3xl transition-transform duration-300 group-hover:scale-110">
                 💬
               </div>
 
-              <h3 className="font-bold text-lg text-gray-900">
+              <h3 className="text-lg font-bold text-white">
                 Customer Support
               </h3>
 
-              <p className="text-gray-500 mt-2">
+              <p className="mt-4 text-sm leading-6 text-gray-400">
                 We are here to help whenever you need us.
               </p>
 
@@ -304,39 +375,48 @@ function Home() {
           </div>
 
         </div>
-
       </section>
 
-      {/* ================= VENDOR CTA SECTION ================= */}
-      <section className="bg-gray-100 border-t border-gray-200">
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+      {/* =========================================================
+          VENDOR CTA SECTION
+      ========================================================= */}
+      <section className="border-t border-gray-600 bg-gray-700">
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
 
-            <div className="text-gray-900 text-center md:text-left">
+          <div className="relative flex flex-col items-center justify-between gap-8 overflow-hidden  border border-white/15 bg-[#202020] p-9 shadow-2xl sm:p-12 lg:flex-row lg:p-14">
 
-              <h2 className="text-3xl font-bold">
+            {/* Background Glow */}
+            <div className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-white/[0.05] blur-3xl" />
+
+            <div className="relative text-center text-white lg:text-left">
+
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-gray-400">
+                SELL WITH US
+              </p>
+
+              <h2 className="text-2xl font-black sm:text-3xl lg:text-4xl">
                 Want to sell your electronics?
               </h2>
 
-              <p className="text-gray-600 mt-2">
+              <p className="mt-3 text-sm text-gray-300 sm:text-base">
                 Join our marketplace and start selling today.
               </p>
 
             </div>
 
+
             <Link
               to="/vendor"
-              className="bg-blue-600 text-white px-7 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm"
+              className="relative inline-flex min-h-[54px] items-center justify-center whitespace-nowrap rounded-xl bg-white px-10 py-4 font-bold text-black shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-gray-200 hover:shadow-2xl active:translate-y-0"
             >
-              Become a Vendor
+              Become a Vendor →
             </Link>
 
           </div>
 
         </div>
-
       </section>
 
     </div>
@@ -344,3 +424,4 @@ function Home() {
 }
 
 export default Home;
+
