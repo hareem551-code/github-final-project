@@ -1,275 +1,174 @@
+
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 
+import connectDB from "./config/db.js";
 import Product from "./models/Product.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 
-// ==========================================
-// FIX __dirname
-// ==========================================
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ==========================================
-// LOAD .ENV FROM SERVER FOLDER
-// ==========================================
+// ======================================================
+// LOAD ENVIRONMENT VARIABLES
+// ======================================================
 
 dotenv.config({
-  path: path.join(__dirname, ".env"),
+  path: "./server/.env",
 });
 
-// ==========================================
-// EXPRESS APP
-// ==========================================
+// ======================================================
+// CREATE EXPRESS APP
+// ======================================================
 
 const app = express();
 
-// ==========================================
+// ======================================================
 // MIDDLEWARE
-// ==========================================
+// ======================================================
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
-// ==========================================
-// TEST ROUTE
-// ==========================================
+// ======================================================
+// DATABASE CONNECTION
+// ======================================================
 
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Electronics Marketplace Backend is running",
-  });
-});
+connectDB();
 
-// ==========================================
-// GET ALL CATEGORIES
-// ==========================================
+// ======================================================
+// REVIEW ROUTES
+// ======================================================
 
-app.get("/api/categories", async (req, res) => {
-  try {
-    const categories = await Product.distinct("category");
+app.use("/api/reviews", reviewRoutes);
 
-    const cleanCategories = categories
-      .filter((category) => category)
-      .map((category) => String(category).trim())
-      .filter((category) => category.length > 0);
-
-    const uniqueCategories = [
-      ...new Set(cleanCategories),
-    ].sort((a, b) =>
-      a.localeCompare(b)
-    );
-
-    res.status(200).json({
-      success: true,
-      categories: [
-        "All",
-        ...uniqueCategories,
-      ],
-    });
-  } catch (error) {
-    console.error(
-      "❌ Categories Error:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Could not fetch categories",
-      error: error.message,
-    });
-  }
-});
-
-// ==========================================
-// GET PRODUCTS
-// SEARCH
-// CATEGORY
-// SORT
-// PAGINATION
-// ==========================================
+// ======================================================
+// GET ALL PRODUCTS
+// SEARCH / CATEGORY / SORT / PAGINATION
+// ======================================================
 
 app.get("/api/products", async (req, res) => {
   try {
-    // ========================================
-    // PAGE
-    // ========================================
+    // --------------------------------------------------
+    // QUERY PARAMETERS
+    // --------------------------------------------------
 
     const page = Math.max(
-      parseInt(req.query.page, 10) || 1,
+      Number(req.query.page) || 1,
       1
     );
 
-    // ========================================
-    // LIMIT
-    // ========================================
-
-    const limit = Math.min(
-      Math.max(
-        parseInt(req.query.limit, 10) || 16,
-        1
-      ),
-      100
+    const limit = Math.max(
+      Number(req.query.limit) || 16,
+      1
     );
 
-    // ========================================
+    const search = String(
+      req.query.search || ""
+    ).trim();
+
+    const category = String(
+      req.query.category || ""
+    ).trim();
+
+    const sort = String(
+      req.query.sort || ""
+    ).trim();
+
+    // --------------------------------------------------
+    // MONGODB QUERY
+    // --------------------------------------------------
+
+    const query = {};
+
+    // --------------------------------------------------
     // SEARCH
-    // ========================================
-
-    const search =
-      req.query.search?.trim() || "";
-
-    // ========================================
-    // CATEGORY
-    // ========================================
-
-    const category =
-      req.query.category?.trim() || "";
-
-    // ========================================
-    // SORT
-    // ========================================
-
-    const sort =
-      req.query.sort?.trim() || "default";
-
-    // ========================================
-    // MONGODB FILTER
-    // ========================================
-
-    const filter = {};
-
-    // ========================================
-    // SEARCH FILTER
-    // ========================================
+    // --------------------------------------------------
 
     if (search) {
-      filter.$or = [
-        {
-          name: {
-            $regex: search,
-            $options: "i",
-          },
-        },
-        {
-          category: {
-            $regex: search,
-            $options: "i",
-          },
-        },
-        {
-          vendor: {
-            $regex: search,
-            $options: "i",
-          },
-        },
+      const searchRegex = {
+        $regex: search,
+        $options: "i",
+      };
+
+      query.$or = [
+        { name: searchRegex },
+        { category: searchRegex },
+        { sub_category: searchRegex },
+        { subCategory: searchRegex },
+        { vendor: searchRegex },
       ];
     }
 
-    // ========================================
+    // --------------------------------------------------
     // CATEGORY FILTER
-    // ========================================
+    // --------------------------------------------------
 
     if (
       category &&
       category.toLowerCase() !== "all"
     ) {
-      filter.category = {
+      query.category = {
         $regex: `^${category}$`,
         $options: "i",
       };
     }
 
-    // ========================================
-    // SORTING
-    // ========================================
+    // --------------------------------------------------
+    // SORT
+    // --------------------------------------------------
 
-    let sortOption = {
-      id: 1,
-    };
+    let sortOption = {};
 
-    if (sort === "low") {
+    if (sort === "price-low") {
       sortOption = {
         price: 1,
-        id: 1,
       };
-    }
-
-    if (sort === "high") {
+    } else if (sort === "price-high") {
       sortOption = {
         price: -1,
-        id: 1,
       };
-    }
-
-    if (sort === "rating") {
+    } else if (sort === "rating") {
       sortOption = {
         rating: -1,
-        id: 1,
+      };
+    } else {
+      sortOption = {
+        _id: -1,
       };
     }
 
-    // ========================================
-    // COUNT FILTERED PRODUCTS
-    // ========================================
+    // --------------------------------------------------
+    // TOTAL PRODUCTS
+    // --------------------------------------------------
 
     const totalProducts =
-      await Product.countDocuments(filter);
+      await Product.countDocuments(query);
 
-    // ========================================
+    // --------------------------------------------------
     // TOTAL PAGES
-    // ========================================
+    // --------------------------------------------------
 
-    const totalPages =
-      totalProducts === 0
-        ? 1
-        : Math.ceil(
-            totalProducts / limit
-          );
+    const totalPages = Math.ceil(
+      totalProducts / limit
+    );
 
-    // ========================================
-    // PREVENT INVALID PAGE
-    // ========================================
+    // --------------------------------------------------
+    // GET PRODUCTS
+    // --------------------------------------------------
 
-    const safePage =
-      Math.min(page, totalPages);
+    const products = await Product.find(query)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(limit);
 
-    // ========================================
-    // SKIP
-    // ========================================
-
-    const skip =
-      (safePage - 1) * limit;
-
-    // ========================================
-    // FETCH PRODUCTS
-    // ========================================
-
-    const products =
-      await Product.find(filter)
-        .sort(sortOption)
-        .skip(skip)
-        .limit(limit)
-        .lean();
-
-    // ========================================
+    // --------------------------------------------------
     // RESPONSE
-    // ========================================
+    // --------------------------------------------------
 
     res.status(200).json({
       success: true,
 
-      currentPage: safePage,
+      currentPage: page,
 
       productsPerPage: limit,
 
@@ -277,36 +176,32 @@ app.get("/api/products", async (req, res) => {
 
       totalPages,
 
-      products,
+      search,
 
-      pagination: {
-        currentPage: safePage,
-        productsPerPage: limit,
-        totalProducts,
-        totalPages,
-        hasPreviousPage:
-          safePage > 1,
-        hasNextPage:
-          safePage < totalPages,
-      },
+      category,
+
+      sort,
+
+      products,
     });
+
   } catch (error) {
     console.error(
-      "❌ Get Products Error:",
-      error.message
+      "GET PRODUCTS ERROR:",
+      error
     );
 
     res.status(500).json({
       success: false,
-      message: "Could not fetch products",
+      message: "Failed to fetch products",
       error: error.message,
     });
   }
 });
 
-// ==========================================
+// ======================================================
 // GET SINGLE PRODUCT
-// ==========================================
+// ======================================================
 
 app.get(
   "/api/products/:id",
@@ -316,17 +211,28 @@ app.get(
         req.params.id
       );
 
-      if (Number.isNaN(productId)) {
+      // ------------------------------------------------
+      // CHECK PRODUCT ID
+      // ------------------------------------------------
+
+      if (
+        !Number.isInteger(productId) ||
+        productId <= 0
+      ) {
         return res.status(400).json({
           success: false,
           message: "Invalid product ID",
         });
       }
 
+      // ------------------------------------------------
+      // FIND PRODUCT
+      // ------------------------------------------------
+
       const product =
         await Product.findOne({
           id: productId,
-        }).lean();
+        });
 
       if (!product) {
         return res.status(404).json({
@@ -335,77 +241,50 @@ app.get(
         });
       }
 
-      res.status(200).json({
-        success: true,
-        product,
-      });
+      // ------------------------------------------------
+      // RESPONSE
+      // ------------------------------------------------
+
+      res.status(200).json(product);
+
     } catch (error) {
       console.error(
-        "❌ Single Product Error:",
-        error.message
+        "SINGLE PRODUCT ERROR:",
+        error
       );
 
       res.status(500).json({
         success: false,
-        message: "Could not fetch product",
+        message: "Failed to fetch product",
         error: error.message,
       });
     }
   }
 );
 
-// ==========================================
-// 404
-// ==========================================
+// ======================================================
+// ROOT ROUTE
+// ======================================================
 
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Electronic Marketplace API is running",
   });
 });
 
-// ==========================================
-// MONGODB URI
-// ==========================================
+// ======================================================
+// SERVER
+// ======================================================
 
-const MONGO_URI =
-  process.env.MONGO_URI;
+const PORT =
+  process.env.SERVER_PORT ||
+  process.env.PORT ||
+  5000;
 
-if (!MONGO_URI) {
-  console.error(
-    "❌ MONGO_URI is missing from server/.env"
+app.listen(PORT, () => {
+  console.log(
+    `Server running on port ${PORT}`
   );
+});
 
-  process.exit(1);
-}
-
-// ==========================================
-// CONNECT MONGODB
-// ==========================================
-
-mongoose
-  .connect(MONGO_URI)
-
-  .then(() => {
-    console.log(
-      "✅ MongoDB Connected Successfully!"
-    );
-
-    // ======================================
-    // START SERVER
-    // ======================================
-
-    app.listen(5000, () => {
-      console.log(
-        "✅ Backend running at http://localhost:5000"
-      );
-    });
-  })
-
-  .catch((error) => {
-    console.error(
-      "❌ MongoDB Connection Failed:",
-      error.message
-    );
-  });

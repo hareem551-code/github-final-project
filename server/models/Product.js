@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
@@ -14,6 +13,10 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
+    description: {
+      type: String,
+    },
+
     category: {
       type: String,
       required: true,
@@ -24,9 +27,9 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
-    oldPrice: {
+    discountPercentage: {
       type: Number,
-      default: null,
+      default: 0,
     },
 
     rating: {
@@ -34,36 +37,26 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    reviews: {
-      type: Number,
-      default: 0,
-    },
-
-    vendor: {
-      type: String,
-      required: true,
-    },
-
-    image: {
-      type: String,
-      default: "",
-    },
-
-    description: {
-      type: String,
-      required: true,
-    },
-
     stock: {
       type: Number,
       default: 0,
     },
+
+    brand: {
+      type: String,
+    },
+
+    image: {
+      type: String,
+      required: true,
+    },
+
+    images: {
+      type: [String],
+      default: [],
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const Product = mongoose.model("Product", productSchema);
-
-export default Product;
+export default mongoose.model("Product", productSchema);

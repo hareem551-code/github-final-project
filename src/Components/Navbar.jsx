@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import useCartStore from "../store/cartStore";
 
 function Navbar() {
@@ -14,6 +14,61 @@ function Navbar() {
   // Mobile menu state
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Search state
+  const [search, setSearch] = useState("");
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // ==========================================
+  // SEARCH
+  // ==========================================
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    const value = search.trim();
+
+    if (value) {
+      navigate(`/products?search=${encodeURIComponent(value)}`);
+    } else {
+      navigate("/products");
+    }
+
+    setMenuOpen(false);
+  };
+
+  // ==========================================
+  // SEARCH CHANGE
+  // ==========================================
+
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+
+    setSearch(value);
+
+    // If search is completely cleared
+    if (value.trim() === "") {
+      if (location.pathname === "/products") {
+        navigate("/products");
+      }
+    }
+  };
+
+  // ==========================================
+  // CLEAR SEARCH WHEN LEAVING PRODUCTS
+  // ==========================================
+
+  const handleLogoClick = () => {
+    setSearch("");
+    setMenuOpen(false);
+  };
+
+  const handleProductsClick = () => {
+    setSearch("");
+    setMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-gray-700 shadow-md">
       <div className="w-full px-6 sm:px-8 lg:px-10">
@@ -21,10 +76,11 @@ function Navbar() {
         <div className="flex min-h-[88px] items-center gap-6">
 
           {/* ================= LOGO ================= */}
+
           <Link
             to="/"
             className="shrink-0 px-2 py-3"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleLogoClick}
           >
             <span className="text-2xl font-bold font-[Pacifico] tracking-tight text-white transition duration-200 hover:text-black sm:text-3xl">
               NextTech
@@ -33,20 +89,28 @@ function Navbar() {
 
 
           {/* ================= SEARCH BAR ================= */}
-          <div className="hidden flex-1 md:flex md:max-w-[390px] lg:max-w-[430px]">
+
+          <form
+            onSubmit={handleSearch}
+            className="hidden flex-1 md:flex md:max-w-[350px] lg:max-w-[390px]"
+          >
 
             <div className="flex h-14 w-full items-center rounded-full bg-gray-100 px-5 shadow-sm">
 
               {/* Search Input */}
+
               <input
                 type="text"
+                value={search}
+                onChange={handleSearchChange}
                 placeholder="What are you looking for?"
                 className="min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-500"
               />
 
               {/* Search Button */}
+
               <button
-                type="button"
+                type="submit"
                 title="Search"
                 className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-700 text-lg text-white transition duration-200 hover:bg-gray-500 hover:text-black"
               >
@@ -55,10 +119,11 @@ function Navbar() {
 
             </div>
 
-          </div>
+          </form>
 
 
           {/* ================= NAVIGATION ================= */}
+
           <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex xl:gap-8">
 
             <Link
@@ -70,6 +135,7 @@ function Navbar() {
 
             <Link
               to="/products"
+              onClick={handleProductsClick}
               className="whitespace-nowrap text-base font-semibold text-white transition duration-200 hover:text-black"
             >
               Products
@@ -100,12 +166,15 @@ function Navbar() {
 
 
           {/* ================= RIGHT SIDE ================= */}
+
           <div className="ml-auto flex shrink-0 items-center gap-3">
 
             {/* Mobile Search */}
+
             <button
               type="button"
               title="Search"
+              onClick={() => navigate("/products")}
               className="flex h-11 w-9 items-center justify-center rounded-full bg-gray-100 text-lg text-gray-700 transition duration-200 hover:bg-gray-300 md:hidden"
             >
               🔍
@@ -113,6 +182,7 @@ function Navbar() {
 
 
             {/* Cart */}
+
             <Link
               to="/cart"
               title="Shopping Cart"
@@ -129,7 +199,7 @@ function Navbar() {
 
 
             {/* ================= LOGIN ================= */}
-            {/* Padding increased on X + Y axis */}
+
             <Link
               to="/login"
               className="hidden rounded-xl border border-black bg-black px-12 py-4 text-base font-semibold text-white shadow-sm transition duration-200 hover:bg-gray-500 hover:text-black sm:block"
@@ -139,7 +209,7 @@ function Navbar() {
 
 
             {/* ================= REGISTER ================= */}
-            {/* Padding increased on X + Y axis */}
+
             <Link
               to="/register"
               className="hidden border rounded-xl border-black bg-black px-12 py-4 text-base font-semibold text-white shadow-sm transition duration-200 hover:bg-gray-500 hover:text-black sm:block"
@@ -149,6 +219,7 @@ function Navbar() {
 
 
             {/* ================= MOBILE MENU BUTTON ================= */}
+
             <button
               type="button"
               title="Menu"
@@ -166,6 +237,7 @@ function Navbar() {
         {/* =========================================================
             MOBILE MENU
         ========================================================= */}
+
         {menuOpen && (
           <div className="border-t border-gray-600 py-5 lg:hidden">
 
@@ -181,7 +253,7 @@ function Navbar() {
 
               <Link
                 to="/products"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleProductsClick}
                 className="rounded-lg px-5 py-3 text-base font-semibold text-white transition duration-200 hover:bg-gray-600 hover:text-black"
               >
                 Products
@@ -211,7 +283,9 @@ function Navbar() {
                 Become a Seller
               </Link>
 
+
               {/* Mobile Login/Register */}
+
               <div className="mt-3 flex gap-3 border-t border-gray-600 pt-5">
 
                 <Link
