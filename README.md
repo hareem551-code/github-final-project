@@ -1,16 +1,37 @@
-# React + Vite
+# Simple Interest Calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Name
 
-Currently, two official plugins are available:
+Simple Interest Calculator
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Description
 
-## React Compiler
+The Simple Interest Calculator is a Bash script that calculates simple interest based on the principal amount, rate of interest, and time period provided by the user.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Formula
 
-## Expanding the ESLint configuration
+Simple Interest = (Principal × Rate × Time) / 100
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Input
+
+The calculator asks the user to enter:
+
+- Principal amount
+- Rate of interest
+- Time period
+
+## Output
+
+The calculator displays:
+
+- Principal amount
+- Rate of interest
+- Time period
+- Calculated simple interest
+
+## How to Run
+
+Run the Bash script using:
+
+```bash
+bash simple-interest.sh
