@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 
-import iphone from "../assets/Product/iphone.jpeg";
-import laptop from "../assets/Product/laptop.jpeg";
-import headphone from "../assets/Product/headphone.jpeg";
-import smartwatch from "../assets/Product/smartwatch.jpeg";
-import camera from "../assets/Product/camera.jpeg";
+import iphone from "../assets/Product/iphone.png";
+import laptop from "../assets/Product/laptop.png";
+import headphone from "../assets/Product/headphone.png";
+import smartwatch from "../assets/Product/smartwatch.png";
+import camera from "../assets/Product/camera.png";
+import gaming from "../assets/Product/gaming.png"
 
 function Categories() {
   const categories = [
@@ -30,7 +31,7 @@ function Categories() {
     },
     {
       name: "Gaming",
-      image: laptop,
+      image: gaming,
       description: "Gaming devices and accessories",
     },
     {
