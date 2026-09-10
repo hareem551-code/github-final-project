@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -6,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import Product from "./models/Product.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // ======================================================
 // LOAD ENVIRONMENT VARIABLES
@@ -34,6 +34,12 @@ app.use(express.json());
 // ======================================================
 
 connectDB();
+
+// ======================================================
+// AUTH ROUTES
+// ======================================================
+
+app.use("/api/auth", authRoutes);
 
 // ======================================================
 // REVIEW ROUTES
@@ -287,4 +293,3 @@ app.listen(PORT, () => {
     `Server running on port ${PORT}`
   );
 });
-

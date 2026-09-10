@@ -1,80 +1,169 @@
 
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import useCartStore from "../store/cartStore";
 
-function ProductDetails() {
-  const { id } = useParams();
+function Products() {
+  // ==========================================
+  // URL SEARCH
+  // ==========================================
 
-  // ======================================================
-  // STATES
-  // ======================================================
+  const [searchParams] = useSearchParams();
 
-  const [product, setProduct] = useState(null);
+  const searchQuery = searchParams.get("search") || "";
 
-  const [reviews, setReviews] = useState([]);
+  // ==========================================
+  // PRODUCTS
+  // ==========================================
 
-  const [averageRating, setAverageRating] = useState(0);
+  const [products, setProducts] = useState([]);
 
-  const [totalReviews, setTotalReviews] = useState(0);
+  // ==========================================
+  // FILTERS
+  // ==========================================
+
+  const [category, setCategory] = useState("All");
+  const [sort, setSort] = useState("default");
+
+  // ==========================================
+  // CATEGORIES
+  // ==========================================
+
+  const [categories] = useState([
+    "All",
+    "Smartphones",
+    "Laptops",
+    "Audio",
+    "Wearables",
+    "Gaming",
+    "Cameras",
+    "Accessories",
+    "Tablets",
+  ]);
+
+  // ==========================================
+  // PAGINATION
+  // ==========================================
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const productsPerPage = 16;
+
+  // ==========================================
+  // LOADING
+  // ==========================================
 
   const [loading, setLoading] = useState(true);
-
-  const [reviewsLoading, setReviewsLoading] =
-    useState(true);
-
   const [error, setError] = useState("");
 
-  const [reviewError, setReviewError] =
-    useState("");
+  // ==========================================
+  // CART
+  // ==========================================
 
-  const [rating, setRating] = useState(5);
+  const addToCart = useCartStore(
+    (state) => state.addToCart
+  );
 
-  const [comment, setComment] = useState("");
-
-  const [submittingReview, setSubmittingReview] =
-    useState(false);
-
-  const [quantity, setQuantity] = useState(1);
-
-  // ======================================================
-  // BACKEND URL
-  // ======================================================
-
-  const API_URL = "http://localhost:5000";
-
-  // ======================================================
-  // FETCH PRODUCT
-  // ======================================================
+  // ==========================================
+  // RESET PAGE WHEN SEARCH CHANGES
+  // ==========================================
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  // ==========================================
+  // FETCH PRODUCTS
+  // ==========================================
+
+  useEffect(() => {
+    const fetchProducts = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${API_URL}/api/products/${id}`
-        );
+        const params = new URLSearchParams();
 
-        const data = await response.json();
+        // PAGE
+        params.append("page", currentPage);
 
-        if (!response.ok) {
-          throw new Error(
-            data.message || "Product not found"
+        // LIMIT
+        params.append("limit", productsPerPage);
+
+        // SEARCH
+        if (searchQuery.trim()) {
+          params.append(
+            "search",
+            searchQuery.trim()
           );
         }
 
-        setProduct(data);
+        // CATEGORY
+        if (
+          category &&
+          category !== "All"
+        ) {
+          params.append(
+            "category",
+            category
+          );
+        }
+
+        // SORT
+        if (sort !== "default") {
+          params.append("sort", sort);
+        }
+
+        const response = await fetch(
+          `http://localhost:5000/api/products?${params.toString()}`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch products"
+          );
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(
+            data.message ||
+              "Unable to fetch products"
+          );
+        }
+
+        setProducts(
+          data.products || []
+        );
+
+        setTotalProducts(
+          data.totalProducts || 0
+        );
+
+        setTotalPages(
+          data.totalPages || 1
+        );
+
+        if (
+          data.currentPage &&
+          data.currentPage !== currentPage
+        ) {
+          setCurrentPage(
+            data.currentPage
+          );
+        }
 
       } catch (error) {
         console.error(
-          "Product fetch error:",
+          "Products Error:",
           error
         );
 
         setError(
-          error.message ||
-            "Unable to load product"
+          "Unable to load products. Please check your backend server."
         );
 
       } finally {
@@ -82,663 +171,301 @@ function ProductDetails() {
       }
     };
 
-    if (id) {
-      fetchProduct();
-    }
-  }, [id]);
+    fetchProducts();
 
-  // ======================================================
-  // FETCH REVIEWS
-  // ======================================================
+  }, [
+    currentPage,
+    category,
+    sort,
+    searchQuery,
+  ]);
 
-  const fetchReviews = async () => {
-    try {
-      setReviewsLoading(true);
-      setReviewError("");
+  // ==========================================
+  // ADD TO CART
+  // ==========================================
 
-      const response = await fetch(
-        `${API_URL}/api/reviews/product/${id}`
-      );
+  const handleAddToCart = (product) => {
+    addToCart(product);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Unable to load reviews"
-        );
-      }
-
-      setReviews(data.reviews || []);
-
-      setAverageRating(
-        data.averageRating || 0
-      );
-
-      setTotalReviews(
-        data.totalReviews || 0
-      );
-
-    } catch (error) {
-      console.error(
-        "Reviews fetch error:",
-        error
-      );
-
-      setReviewError(
-        error.message ||
-          "Unable to load reviews"
-      );
-
-    } finally {
-      setReviewsLoading(false);
-    }
+    alert(
+      `${product.name} added to cart!`
+    );
   };
 
-  useEffect(() => {
-    if (id) {
-      fetchReviews();
-    }
-  }, [id]);
+  // ==========================================
+  // CHANGE PAGE
+  // ==========================================
 
-  // ======================================================
-  // SUBMIT REVIEW
-  // ======================================================
-
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-
-    if (!comment.trim()) {
-      setReviewError(
-        "Please write a review."
-      );
-
+  const changePage = (page) => {
+    if (
+      page < 1 ||
+      page > totalPages ||
+      page === currentPage
+    ) {
       return;
     }
 
-    try {
-      setSubmittingReview(true);
-      setReviewError("");
+    setCurrentPage(page);
 
-      const response = await fetch(
-        `${API_URL}/api/reviews`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            productId: Number(id),
-            rating: Number(rating),
-            comment: comment.trim(),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Unable to submit review"
-        );
-      }
-
-      // --------------------------------------------------
-      // CLEAR FORM
-      // --------------------------------------------------
-
-      setComment("");
-
-      setRating(5);
-
-      // --------------------------------------------------
-      // UPDATE RATING
-      // --------------------------------------------------
-
-      setAverageRating(
-        data.averageRating || 0
-      );
-
-      setTotalReviews(
-        data.totalReviews || 0
-      );
-
-      // --------------------------------------------------
-      // REFRESH REVIEWS
-      // --------------------------------------------------
-
-      await fetchReviews();
-
-      // --------------------------------------------------
-      // UPDATE PRODUCT RATING LOCALLY
-      // --------------------------------------------------
-
-      setProduct((previousProduct) => {
-        if (!previousProduct) {
-          return previousProduct;
-        }
-
-        return {
-          ...previousProduct,
-          rating:
-            data.averageRating ||
-            previousProduct.rating,
-        };
-      });
-
-    } catch (error) {
-      console.error(
-        "Submit review error:",
-        error
-      );
-
-      setReviewError(
-        error.message ||
-          "Unable to submit review"
-      );
-
-    } finally {
-      setSubmittingReview(false);
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
-  // ======================================================
-  // QUANTITY
-  // ======================================================
+  // ==========================================
+  // CLEAR FILTERS
+  // ==========================================
 
-  const decreaseQuantity = () => {
-    setQuantity((previous) =>
-      previous > 1
-        ? previous - 1
-        : 1
-    );
+  const clearFilters = () => {
+    setCategory("All");
+    setSort("default");
+    setCurrentPage(1);
   };
 
-  const increaseQuantity = () => {
-    setQuantity(
-      (previous) => previous + 1
-    );
+  // ==========================================
+  // IMAGE ERROR
+  // ==========================================
+
+  const handleImageError = (event) => {
+    event.currentTarget.src =
+      "https://placehold.co/600x500/f3f3f3/171717?text=Product";
   };
 
-  // ======================================================
-  // LOADING
-  // ======================================================
+  // ==========================================
+  // LOADING SCREEN
+  // ==========================================
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-6">
+
         <div className="text-center">
-          <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
 
-          <p className="text-gray-600 mt-4">
-            Loading product...
-          </p>
-        </div>
-      </div>
-    );
-  }
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-[#171717] rounded-full animate-spin mx-auto" />
 
-  // ======================================================
-  // PRODUCT ERROR / NOT FOUND
-  // ======================================================
-
-  if (error || !product) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Product Not Found
-          </h1>
-
-          <p className="text-gray-500 mt-3">
-            {error ||
-              "The requested product could not be found."}
-          </p>
-
-          <Link
-            to="/products"
-            className="inline-block mt-5 bg-gray-900 hover:bg-gray-800 text-white px-5 py-3 rounded-lg transition"
-          >
-            Back to Products
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // ======================================================
-  // DISPLAY VALUES
-  // ======================================================
-
-  const currentRating =
-    averageRating > 0
-      ? averageRating
-      : Number(product.rating || 0);
-
-  const seller =
-    product.seller ||
-    product.vendor ||
-    "Marketplace Seller";
-
-  const oldPrice =
-    Number(product.price || 0) + 150;
-
-  // ======================================================
-  // STAR DISPLAY
-  // ======================================================
-
-  const renderStars = (
-    value,
-    size = "text-xl"
-  ) => {
-    const roundedRating =
-      Math.round(Number(value));
-
-    return (
-      <div
-        className={`flex items-center ${size}`}
-      >
-        {[1, 2, 3, 4, 5].map(
-          (star) => (
-            <span
-              key={star}
-              className={
-                star <= roundedRating
-                  ? "text-yellow-500"
-                  : "text-gray-300"
-              }
-            >
-              ★
-            </span>
-          )
-        )}
-      </div>
-    );
-  };
-
-  // ======================================================
-  // RETURN
-  // ======================================================
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-
-      {/* ==================================================
-          BREADCRUMB
-      ================================================== */}
-
-      <div className="max-w-7xl mx-auto px-6 py-5">
-
-        <div className="text-sm text-gray-500">
-
-          <Link
-            to="/"
-            className="hover:text-blue-600"
-          >
-            Home
-          </Link>
-
-          <span className="mx-2">
-            /
-          </span>
-
-          <Link
-            to="/products"
-            className="hover:text-blue-600"
-          >
-            Products
-          </Link>
-
-          <span className="mx-2">
-            /
-          </span>
-
-          <span className="text-gray-900">
-            {product.name}
-          </span>
-
-        </div>
-
-      </div>
-
-      {/* ==================================================
-          PRODUCT DETAILS
-      ================================================== */}
-
-      <main className="max-w-7xl mx-auto px-6 pb-12">
-
-        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-
-            {/* ==================================================
-                PRODUCT IMAGE
-            ================================================== */}
-
-            <div className="bg-gray-100 min-h-[450px] flex items-center justify-center p-10">
-
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full max-w-lg h-[400px] object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display =
-                    "none";
-                }}
-              />
-
-            </div>
-
-            {/* ==================================================
-                PRODUCT INFORMATION
-            ================================================== */}
-
-            <div className="p-8 lg:p-12">
-
-              {/* Category */}
-
-              <p className="text-blue-600 font-semibold">
-
-                {product.category}
-
-              </p>
-
-              {/* Name */}
-
-              <h1 className="text-4xl font-bold text-gray-900 mt-3">
-
-                {product.name}
-
-              </h1>
-
-              {/* Rating */}
-
-              <div className="flex items-center gap-3 mt-5">
-
-                {renderStars(
-                  currentRating
-                )}
-
-                <span className="text-gray-600">
-
-                  {currentRating > 0
-                    ? currentRating.toFixed(
-                        1
-                      )
-                    : "No rating"}
-
-                  {" "}Rating
-
-                </span>
-
-                {totalReviews > 0 && (
-                  <span className="text-gray-400">
-                    ({totalReviews}{" "}
-                    reviews)
-                  </span>
-                )}
-
-              </div>
-
-              {/* Price */}
-
-              <div className="mt-7">
-
-                <span className="text-4xl font-bold text-gray-900">
-
-                  $
-                  {Number(
-                    product.price || 0
-                  ).toFixed(2)}
-
-                </span>
-
-                <span className="ml-3 text-gray-400 line-through">
-
-                  $
-                  {oldPrice.toFixed(0)}
-
-                </span>
-
-              </div>
-
-              {/* Description */}
-
-              <p className="text-gray-600 leading-7 mt-6">
-
-                Experience high-quality
-                electronics from a trusted
-                marketplace seller. This
-                product is carefully selected
-                for customers looking for
-                reliable technology and
-                excellent performance.
-
-              </p>
-
-              {/* Seller */}
-
-              <div className="bg-gray-50 rounded-xl p-5 mt-7">
-
-                <p className="text-sm text-gray-500">
-                  Sold by
-                </p>
-
-                <p className="font-bold text-gray-900 text-lg mt-1">
-                  {seller}
-                </p>
-
-                <div className="flex items-center gap-2 mt-2">
-
-                  <span className="text-green-600 font-semibold">
-                    ✓ Verified Seller
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* Stock */}
-
-              <div className="mt-6">
-
-                <span className="text-green-600 font-semibold">
-                  ✓ In Stock
-                </span>
-
-                <span className="text-gray-500 ml-3">
-                  Fast delivery available
-                </span>
-
-              </div>
-
-              {/* Quantity */}
-
-              <div className="flex items-center gap-4 mt-7">
-
-                <span className="font-semibold">
-                  Quantity:
-                </span>
-
-                <div className="flex items-center border rounded-lg overflow-hidden">
-
-                  <button
-                    type="button"
-                    onClick={
-                      decreaseQuantity
-                    }
-                    className="px-4 py-2 text-lg hover:bg-gray-100"
-                  >
-                    −
-                  </button>
-
-                  <span className="px-5 py-2 border-x">
-                    {quantity}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={
-                      increaseQuantity
-                    }
-                    className="px-4 py-2 text-lg hover:bg-gray-100"
-                  >
-                    +
-                  </button>
-
-                </div>
-
-              </div>
-
-              {/* Buttons */}
-
-              <div className="flex flex-col sm:flex-row gap-4 mt-8">
-
-                <button
-                  type="button"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg transition"
-                >
-                  Add to Cart
-                </button>
-
-                <button
-                  type="button"
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-xl font-bold text-lg transition"
-                >
-                  Buy Now
-                </button>
-
-              </div>
-
-              {/* Features */}
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-
-                <div className="border rounded-xl p-4 text-center">
-
-                  <div className="text-2xl">
-                    🚚
-                  </div>
-
-                  <p className="font-semibold mt-2">
-                    Fast Delivery
-                  </p>
-
-                  <p className="text-xs text-gray-500 mt-1">
-                    Quick shipping
-                  </p>
-
-                </div>
-
-                <div className="border rounded-xl p-4 text-center">
-
-                  <div className="text-2xl">
-                    🔒
-                  </div>
-
-                  <p className="font-semibold mt-2">
-                    Secure Payment
-                  </p>
-
-                  <p className="text-xs text-gray-500 mt-1">
-                    Safe checkout
-                  </p>
-
-                </div>
-
-                <div className="border rounded-xl p-4 text-center">
-
-                  <div className="text-2xl">
-                    ↩️
-                  </div>
-
-                  <p className="font-semibold mt-2">
-                    Easy Returns
-                  </p>
-
-                  <p className="text-xs text-gray-500 mt-1">
-                    Customer friendly
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* ==================================================
-            PRODUCT INFORMATION
-        ================================================== */}
-
-        <div className="bg-white rounded-2xl shadow-sm border mt-8 p-8">
-
-          <h2 className="text-2xl font-bold text-gray-900">
-            Product Information
+          <h2 className="text-xl font-bold text-gray-900 mt-5">
+            Loading Products...
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <p className="text-sm text-gray-500 mt-2">
+            Please wait
+          </p>
 
-            <div className="border rounded-xl p-5">
+        </div>
 
-              <p className="text-sm text-gray-500">
-                Category
-              </p>
+      </div>
+    );
+  }
 
-              <p className="font-semibold mt-1">
-                {product.category}
-              </p>
+  // ==========================================
+  // ERROR SCREEN
+  // ==========================================
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-6">
+
+        <div className="max-w-md w-full bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-sm">
+
+          <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-2xl font-bold text-gray-700">
+            !
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-900 mt-5">
+            Something went wrong
+          </h2>
+
+          <p className="text-gray-500 mt-3">
+            {error}
+          </p>
+
+          <button
+            onClick={() =>
+              window.location.reload()
+            }
+            className="mt-6 px-6 py-3 bg-[#171717] text-white rounded-xl font-semibold hover:bg-black transition"
+          >
+            Try Again
+          </button>
+
+        </div>
+
+      </div>
+    );
+  }
+
+  // ==========================================
+  // MAIN PAGE
+  // ==========================================
+
+  return (
+    <div className="min-h-screen bg-[#f7f7f7]">
+
+      {/* ======================================
+          HERO
+      ====================================== */}
+
+      <section className="bg-[#171717] text-white">
+
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 md:py-18">
+
+          <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.25em]">
+            ElectroMarket
+          </p>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-3">
+            {searchQuery
+              ? "Search Results"
+              : "All Electronics"}
+          </h1>
+
+          <p className="max-w-2xl text-gray-400 mt-5 text-base md:text-lg leading-relaxed">
+
+            {searchQuery
+              ? `Products matching "${searchQuery}"`
+              : "Discover quality electronics from trusted marketplace vendors."}
+
+          </p>
+
+        </div>
+
+      </section>
+
+
+      {/* ======================================
+          FILTER AREA
+      ====================================== */}
+
+      <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 -mt-7 relative z-10">
+
+        <div className="bg-white border border-gray-200 rounded-3xl p-5 md:p-7 shadow-lg">
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+
+            {/* ==================================
+                CATEGORIES
+            ================================== */}
+
+            <div className="flex-1 min-w-0">
+
+              <label className="block text-sm font-semibold uppercase tracking-[0.16em] text-gray-500 mb-3">
+                Categories
+              </label>
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  overflow-x-auto
+                  pb-1
+                  [scrollbar-width:none]
+                  [&::-webkit-scrollbar]:hidden
+                "
+              >
+
+                {categories.map(
+                  (item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        setCategory(item);
+                        setCurrentPage(1);
+                      }}
+                      className={`
+                        shrink-0
+                        px-5
+                        py-2.5
+                        rounded-lg
+                        text-base
+                        font-medium
+                        whitespace-nowrap
+                        transition-all
+                        duration-200
+                        border
+                        ${
+                          category === item
+                            ? `
+                              bg-[#171717]
+                              text-white
+                              border-[#171717]
+                              shadow-sm
+                            `
+                            : `
+                              bg-white
+                              text-gray-700
+                              border-gray-900
+                              hover:bg-gray-100
+                              hover:text-gray-900
+                            `
+                        }
+                      `}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+
+              </div>
 
             </div>
 
-            <div className="border rounded-xl p-5">
 
-              <p className="text-sm text-gray-500">
-                Seller
-              </p>
+            {/* ==================================
+                SORT
+            ================================== */}
 
-              <p className="font-semibold mt-1">
-                {seller}
-              </p>
+            <div className="w-full sm:w-64 lg:w-60 shrink-0">
 
-            </div>
+              <label className="block text-sm font-semibold uppercase tracking-[0.16em] text-gray-500 mb-3">
+                Sort By
+              </label>
 
-            <div className="border rounded-xl p-5">
+              <select
+                value={sort}
+                onChange={(event) => {
+                  setSort(
+                    event.target.value
+                  );
+                  setCurrentPage(1);
+                }}
+                className="
+                  w-full
+                  h-[44px]
+                  px-5
+                  bg-white
+                  border
+                  border-gray-900
+                  rounded-lg
+                  outline-none
+                  text-base
+                  font-medium
+                  text-gray-700
+                  focus:bg-gray-50
+                  focus:border-black
+                  transition
+                  cursor-pointer
+                "
+              >
 
-              <p className="text-sm text-gray-500">
-                Customer Rating
-              </p>
+                <option value="default">
+                  Default
+                </option>
 
-              <p className="font-semibold mt-1">
+                <option value="price-low">
+                  Price: Low to High
+                </option>
 
-                ⭐{" "}
-                {currentRating > 0
-                  ? currentRating.toFixed(
-                      1
-                    )
-                  : "No rating"}{" "}
-                / 5
+                <option value="price-high">
+                  Price: High to Low
+                </option>
 
-              </p>
+                <option value="rating">
+                  Highest Rated
+                </option>
 
-            </div>
-
-            <div className="border rounded-xl p-5">
-
-              <p className="text-sm text-gray-500">
-                Availability
-              </p>
-
-              <p className="font-semibold text-green-600 mt-1">
-                In Stock
-              </p>
+              </select>
 
             </div>
 
@@ -746,235 +473,539 @@ function ProductDetails() {
 
         </div>
 
-        {/* ==================================================
-            REVIEWS SECTION
-        ================================================== */}
+      </section>
 
-        <div className="bg-white rounded-2xl shadow-sm border mt-8 p-8">
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* ======================================
+          PRODUCTS SECTION
+      ====================================== */}
 
-            <div>
+      <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-8 pb-16">
 
-              <h2 className="text-2xl font-bold text-gray-900">
-                Customer Reviews
-              </h2>
+        {/* ====================================
+            HEADER
+        ==================================== */}
 
-              <div className="flex items-center gap-3 mt-3">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-7">
 
-                {renderStars(
-                  currentRating,
-                  "text-2xl"
-                )}
+          <div>
 
-                <span className="font-semibold text-gray-900">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gray-400">
+              Marketplace
+            </p>
 
-                  {currentRating > 0
-                    ? currentRating.toFixed(
-                        1
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">
+
+              {searchQuery
+                ? `Results for "${searchQuery}"`
+                : category === "All"
+                ? "All Electronics"
+                : category}
+
+            </h2>
+
+          </div>
+
+
+          <p className="text-sm text-gray-500">
+
+            Showing{" "}
+
+            <span className="font-bold text-gray-900">
+              {products.length}
+            </span>
+
+            {" "}of{" "}
+
+            <span className="font-bold text-gray-900">
+              {totalProducts}
+            </span>
+
+            {" "}products
+
+          </p>
+
+        </div>
+
+
+        {/* ====================================
+            PRODUCT GRID
+        ==================================== */}
+
+        {products.length > 0 ? (
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+
+            {products.map(
+              (product) => {
+
+                const price =
+                  Number(
+                    product.price
+                  ) || 0;
+
+                const oldPrice =
+                  Number(
+                    product.oldPrice
+                  ) || 0;
+
+                const rating =
+                  Number(
+                    product.rating
+                  ) || 0;
+
+                const stock =
+                  Number(
+                    product.stock
+                  ) || 0;
+
+                const discount =
+                  oldPrice > price
+                    ? Math.round(
+                        ((oldPrice -
+                          price) /
+                          oldPrice) *
+                          100
                       )
-                    : "0.0"}{" "}
-                  / 5
+                    : 0;
 
-                </span>
+                return (
 
-                <span className="text-gray-500">
+                  <article
+                    key={
+                      product._id ||
+                      product.id
+                    }
+                    className="
+                      group
+                      bg-white
+                      border
+                      border-gray-200
+                      rounded-2xl
+                      overflow-hidden
+                      hover:border-gray-300
+                      hover:shadow-xl
+                      transition-all
+                      duration-300
+                      flex
+                      flex-col
+                    "
+                  >
 
-                  ({totalReviews}{" "}
-                  reviews)
+                    {/* ==================================
+                        IMAGE
+                    ================================== */}
 
-                </span>
+                    <div className="relative h-64 bg-[#f3f3f3] overflow-hidden flex items-center justify-center">
 
-              </div>
+                      {discount > 0 && (
+                        <span className="absolute top-4 left-4 z-10 bg-[#171717] text-white text-[11px] font-bold px-3 py-1.5 rounded-full">
+                          {discount}% OFF
+                        </span>
+                      )}
 
-            </div>
+                      <div className="w-full h-full p-8 flex items-center justify-center">
 
-          </div>
+                        <img
+                          src={
+                            product.image
+                          }
+                          alt={
+                            product.name ||
+                            "Product"
+                          }
+                          loading="lazy"
+                          onError={
+                            handleImageError
+                          }
+                          className="
+                            max-w-full
+                            max-h-full
+                            w-auto
+                            h-auto
+                            object-contain
+                            group-hover:scale-105
+                            transition-transform
+                            duration-500
+                          "
+                        />
 
-          {/* ==================================================
-              WRITE REVIEW
-          ================================================== */}
+                      </div>
 
-          <div className="border rounded-xl p-6 mt-8">
+                    </div>
 
-            <h3 className="text-lg font-bold text-gray-900">
-              Write a Review
-            </h3>
 
-            <form
-              onSubmit={
-                handleSubmitReview
-              }
-              className="mt-5"
-            >
+                    {/* ==================================
+                        PRODUCT INFORMATION
+                    ================================== */}
 
-              {/* Rating */}
+                    <div className="p-7 md:p-8 flex flex-col flex-1">
 
-              <div>
+                      {/* CATEGORY */}
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Rating
-                </label>
+                      <p className="text-[11px] uppercase tracking-wider font-bold text-gray-400">
+                        {product.category ||
+                          "Electronics"}
+                      </p>
 
-                <div className="flex items-center gap-1">
 
-                  {[1, 2, 3, 4, 5].map(
-                    (star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() =>
-                          setRating(star)
-                        }
-                        className={`text-3xl transition ${
-                          star <= rating
-                            ? "text-yellow-500"
-                            : "text-gray-300"
-                        }`}
-                        aria-label={`Rate ${star} out of 5`}
-                      >
-                        ★
-                      </button>
-                    )
-                  )}
+                      {/* NAME */}
 
-                </div>
+                      <h3 className="text-base md:text-lg font-bold text-gray-900 mt-2 line-clamp-2 min-h-[48px]">
+                        {product.name ||
+                          "Unnamed Product"}
+                      </h3>
 
-              </div>
 
-              {/* Comment */}
+                      {/* RATING */}
 
-              <div className="mt-5">
+                      <div className="flex items-center gap-2 mt-4">
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Review
-                </label>
+                        <span className="text-sm text-gray-900 tracking-tight">
 
-                <textarea
-                  value={comment}
-                  onChange={(e) =>
-                    setComment(
-                      e.target.value
-                    )
-                  }
-                  rows="4"
-                  placeholder="Share your experience with this product..."
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                />
-
-              </div>
-
-              {/* Error */}
-
-              {reviewError && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                  {reviewError}
-                </div>
-              )}
-
-              {/* Submit */}
-
-              <button
-                type="submit"
-                disabled={
-                  submittingReview
-                }
-                className="mt-5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white px-6 py-3 rounded-xl font-semibold transition"
-              >
-
-                {submittingReview
-                  ? "Submitting..."
-                  : "Submit Review"}
-
-              </button>
-
-            </form>
-
-          </div>
-
-          {/* ==================================================
-              REVIEWS LIST
-          ================================================== */}
-
-          <div className="mt-8">
-
-            <h3 className="text-lg font-bold text-gray-900">
-              Recent Reviews
-            </h3>
-
-            {reviewsLoading ? (
-              <div className="py-8 text-center text-gray-500">
-                Loading reviews...
-              </div>
-            ) : reviews.length === 0 ? (
-              <div className="mt-5 border rounded-xl p-8 text-center">
-
-                <p className="text-gray-500">
-                  No reviews yet.
-                </p>
-
-                <p className="text-sm text-gray-400 mt-1">
-                  Be the first customer to
-                  review this product.
-                </p>
-
-              </div>
-            ) : (
-              <div className="space-y-4 mt-5">
-
-                {reviews.map(
-                  (review) => (
-                    <div
-                      key={review._id}
-                      className="border rounded-xl p-5"
-                    >
-
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-
-                        <div className="flex items-center gap-3">
-
-                          {renderStars(
-                            review.rating,
-                            "text-lg"
+                          {"★".repeat(
+                            Math.min(
+                              5,
+                              Math.max(
+                                0,
+                                Math.round(
+                                  rating
+                                )
+                              )
+                            )
                           )}
 
-                          <span className="font-semibold text-gray-900">
-                            {review.rating}/5
+                        </span>
+
+                        <span className="text-xs text-gray-500">
+                          {rating.toFixed(1)}
+                        </span>
+
+                        {product.reviews ? (
+                          <span className="text-xs text-gray-400">
+                            (
+                            {
+                              product.reviews
+                            }
+                            )
                           </span>
+                        ) : null}
 
-                        </div>
+                      </div>
 
-                        {review.createdAt && (
-                          <span className="text-sm text-gray-400">
 
-                            {new Date(
-                              review.createdAt
-                            ).toLocaleDateString()}
+                      {/* VENDOR */}
 
+                      <p className="text-xs text-gray-500 mt-4">
+
+                        Sold by{" "}
+
+                        <span className="font-semibold text-gray-800">
+                          {product.vendor ||
+                            "Marketplace Vendor"}
+                        </span>
+
+                      </p>
+
+
+                      {/* PRICE */}
+
+                      <div className="flex items-center gap-3 mt-4">
+
+                        <span className="text-xl md:text-2xl font-bold text-gray-950">
+                          $
+                          {price.toFixed(
+                            2
+                          )}
+                        </span>
+
+                        {oldPrice >
+                          price && (
+                          <span className="text-sm text-gray-400 line-through">
+                            $
+                            {oldPrice.toFixed(
+                              2
+                            )}
                           </span>
                         )}
 
                       </div>
 
-                      <p className="text-gray-600 leading-7 mt-3">
-                        {review.comment}
+
+                      {/* STOCK */}
+
+                      <p
+                        className={`text-xs font-semibold mt-2 ${
+                          stock > 0
+                            ? "text-gray-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {stock > 0
+                          ? `${stock} available`
+                          : "Out of stock"}
                       </p>
 
-                    </div>
-                  )
-                )}
 
-              </div>
+                      {/* ==================================
+                          BUTTONS
+                      ================================== */}
+
+                      <div className="grid grid-cols-2 gap-3 mt-auto pt-7">
+
+                        {/* DETAILS */}
+
+                        <Link
+                          to={`/products/${product.id}`}
+                          className="
+                            h-11
+                            flex
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-gray-900
+                            text-gray-900
+                            text-sm
+                            font-bold
+                            hover:bg-gray-100
+                            transition
+                          "
+                        >
+                          Details
+                        </Link>
+
+
+                        {/* ADD TO CART */}
+
+                        <button
+                          onClick={() =>
+                            handleAddToCart(
+                              product
+                            )
+                          }
+                          disabled={
+                            stock <= 0
+                          }
+                          className={`
+                            h-11
+                            rounded-xl
+                            text-sm
+                            font-bold
+                            transition
+                            ${
+                              stock > 0
+                                ? "bg-[#171717] text-white hover:bg-black"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            }
+                          `}
+                        >
+                          {stock > 0
+                            ? "Add to Cart"
+                            : "Sold Out"}
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </article>
+
+                );
+              }
             )}
 
           </div>
 
-        </div>
+        ) : (
 
-      </main>
+          /* ====================================
+             NO PRODUCTS
+          ==================================== */
+
+          <div className="bg-white border border-gray-200 rounded-3xl p-12 md:p-20 text-center">
+
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-2xl">
+              ⌕
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-5">
+
+              {searchQuery
+                ? "No Search Results"
+                : "No Products Found"}
+
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+
+              {searchQuery
+                ? `No products found for "${searchQuery}". Try another search.`
+                : "Try another category."}
+
+            </p>
+
+            <button
+              onClick={clearFilters}
+              className="mt-6 px-7 py-3 bg-[#171717] text-white rounded-xl font-semibold hover:bg-black transition"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+        )}
+
+
+        {/* ====================================
+            PAGINATION
+        ==================================== */}
+
+        {totalPages > 1 && (
+
+          <div className="mt-12 pt-7 border-t border-gray-200">
+
+            <div className="flex flex-wrap justify-center items-center gap-2">
+
+              {/* PREVIOUS */}
+
+              <button
+                onClick={() =>
+                  changePage(
+                    currentPage - 1
+                  )
+                }
+                disabled={
+                  currentPage === 1
+                }
+                className={`h-10 px-4 rounded-xl border text-sm font-semibold transition ${
+                  currentPage === 1
+                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-gray-900 hover:text-black"
+                }`}
+              >
+                ← Previous
+              </button>
+
+
+              {/* PAGE NUMBERS */}
+
+              {Array.from(
+                {
+                  length: totalPages,
+                },
+                (_, index) =>
+                  index + 1
+              )
+                .filter(
+                  (page) =>
+                    page === 1 ||
+                    page === totalPages ||
+                    Math.abs(
+                      page -
+                        currentPage
+                    ) <= 1
+                )
+                .map(
+                  (
+                    page,
+                    index,
+                    pages
+                  ) => {
+
+                    const previous =
+                      pages[index - 1];
+
+                    const showDots =
+                      previous &&
+                      page -
+                        previous >
+                        1;
+
+                    return (
+                      <React.Fragment
+                        key={page}
+                      >
+
+                        {showDots && (
+                          <span className="px-1 text-gray-400">
+                            ...
+                          </span>
+                        )}
+
+                        <button
+                          onClick={() =>
+                            changePage(
+                              page
+                            )
+                          }
+                          className={`min-w-10 h-10 px-3 rounded-xl text-sm font-bold transition ${
+                            currentPage ===
+                            page
+                              ? "bg-[#171717] text-white"
+                              : "bg-white text-gray-700 border border-gray-200 hover:border-gray-900 hover:text-black"
+                          }`}
+                        >
+                          {page}
+                        </button>
+
+                      </React.Fragment>
+                    );
+                  }
+                )}
+
+              {/* NEXT */}
+
+              <button
+                onClick={() =>
+                  changePage(
+                    currentPage + 1
+                  )
+                }
+                disabled={
+                  currentPage ===
+                  totalPages
+                }
+                className={`h-10 px-4 rounded-xl border text-sm font-semibold transition ${
+                  currentPage ===
+                  totalPages
+                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-gray-900 hover:text-black"
+                }`}
+              >
+                Next →
+              </button>
+
+            </div>
+
+
+            {/* PAGE INFO */}
+
+            <p className="text-center text-xs text-gray-400 mt-4">
+
+              Page{" "}
+
+              <span className="font-bold text-gray-700">
+                {currentPage}
+              </span>
+
+              {" "}of{" "}
+
+              <span className="font-bold text-gray-700">
+                {totalPages}
+              </span>
+
+            </p>
+
+          </div>
+
+        )}
+
+      </section>
 
     </div>
   );
 }
 
-export default ProductDetails;
+export default Products;
+
