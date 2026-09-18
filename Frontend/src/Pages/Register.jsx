@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { Eye, EyeOff, User, Store, Zap } from "lucide-react";
+import { Eye, EyeOff, User, Store, Zap, Upload, X } from "lucide-react";
 
 function Register() {
   const navigate = useNavigate();
@@ -18,6 +18,8 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Address is now shared by BOTH roles (matches backend schema
+  // where both Customer and Vendor have an `address` field)
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
@@ -27,8 +29,37 @@ function Register() {
   const [businessName, setBusinessName] = useState("");
   const [businessAddress, setBusinessAddress] = useState("");
 
+  // Profile image state
+  const [profileImage, setProfileImage] = useState(null); // actual File object
+  const [profileImagePreview, setProfileImagePreview] = useState(""); // preview URL
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Please upload a valid image (JPEG, PNG, WEBP, or GIF).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be smaller than 5MB.");
+      return;
+    }
+
+    setError("");
+    setProfileImage(file);
+    setProfileImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    setProfileImagePreview("");
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -52,31 +83,39 @@ function Register() {
       setLoading(true);
       setError("");
 
-      const payload = {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        password,
-        role,
-        address: address.trim(),
-        city: city.trim(),
-        country: country.trim(),
-      };
+      // Using FormData instead of JSON because we may be
+      // sending a file (profileImage) alongside text fields.
+      const formData = new FormData();
+      formData.append("firstName", firstName.trim());
+      formData.append("lastName", lastName.trim());
+      formData.append("email", email.trim());
+      formData.append("phone", phone.trim());
+      formData.append("password", password);
+      formData.append("role", role);
+      formData.append("address", address.trim());
+      formData.append("city", city.trim());
+      formData.append("country", country.trim());
 
       if (role === "vendor") {
-        payload.storeName = storeName.trim();
-        payload.storeDescription = storeDescription.trim();
-        payload.businessName = businessName.trim();
-        payload.businessAddress = businessAddress.trim();
+        formData.append("storeName", storeName.trim());
+        formData.append("storeDescription", storeDescription.trim());
+        formData.append("businessName", businessName.trim());
+        formData.append("businessAddress", businessAddress.trim());
+      }
+
+      // Only attach the file if the user actually picked one —
+      // the field name here ("profileImage") MUST match
+      // upload.single("profileImage") on the backend route.
+      if (profileImage) {
+        formData.append("profileImage", profileImage);
       }
 
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        // NOTE: do NOT set Content-Type manually here — the
+        // browser sets the correct multipart/form-data boundary
+        // automatically when the body is a FormData object.
+        body: formData,
       });
 
       const data = await response.json();
@@ -206,6 +245,50 @@ function Register() {
           )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Profile Image Upload — shared by both roles */}
+            <div>
+              <label className={labelClass}>Profile Photo (optional)</label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center overflow-hidden shrink-0">
+                  {profileImagePreview ? (
+                    <img
+                      src={profileImagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={24} className="text-gray-400" />
+                  )}
+                </div>
+
+                <label
+                  htmlFor="profileImageInput"
+                  className="flex items-center gap-2 h-10 px-4 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer transition"
+                >
+                  <Upload size={15} />
+                  {profileImage ? "Change photo" : "Upload photo"}
+                </label>
+                <input
+                  id="profileImageInput"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+
+                {profileImage && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="text-gray-400 hover:text-red-500 transition"
+                    title="Remove photo"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>First Name</label>
@@ -294,44 +377,42 @@ function Register() {
               </div>
             </div>
 
-            {role === "customer" && (
-              <>
-                <div>
-                  <label className={labelClass}>Address (optional)</label>
-                  <input
-                    type="text"
-                    placeholder="House, street, area"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
+            {/* Address — now shown for BOTH customer and vendor,
+                since both models store a general `address` field */}
+            <div>
+              <label className={labelClass}>Address (optional)</label>
+              <input
+                type="text"
+                placeholder="House, street, area"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className={inputClass}
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>City (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="Rawalpindi"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>City (optional)</label>
+                <input
+                  type="text"
+                  placeholder="Rawalpindi"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
-                  <div>
-                    <label className={labelClass}>Country (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="Pakistan"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+              <div>
+                <label className={labelClass}>Country (optional)</label>
+                <input
+                  type="text"
+                  placeholder="Pakistan"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
 
             {role === "vendor" && (
               <>
@@ -383,30 +464,6 @@ function Register() {
                     onChange={(e) => setBusinessAddress(e.target.value)}
                     className={inputClass}
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>City</label>
-                    <input
-                      type="text"
-                      placeholder="Rawalpindi"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Country</label>
-                    <input
-                      type="text"
-                      placeholder="Pakistan"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
                 </div>
               </>
             )}

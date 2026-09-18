@@ -20,11 +20,11 @@ function Cart() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-[70vh] bg-gray-50 px-4 py-16">
-        <div className="mx-auto max-w-3xl rounded-2xl bg-white p-12 text-center shadow">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-16">
+        <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-12 text-center shadow-md border border-gray-200">
           <div className="mb-5 text-6xl">🛒</div>
 
-          <h1 className="mb-3 text-3xl font-bold text-gray-900">
+          <h1 className="mb-3 text-3xl font-bold text-gray-800">
             Your Cart is Empty
           </h1>
 
@@ -34,7 +34,7 @@ function Cart() {
 
           <Link
             to="/products"
-            className="inline-block rounded-lg bg-blue-600 px-7 py-3 font-semibold text-white transition hover:bg-blue-700"
+            className="inline-block rounded-lg bg-gray-800 px-7 py-3 font-semibold text-white transition hover:bg-gray-900"
           >
             Continue Shopping
           </Link>
@@ -44,13 +44,13 @@ function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-10">
+    <div className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="mx-auto max-w-7xl">
 
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-4xl font-bold text-gray-800">
               Shopping Cart
             </h1>
 
@@ -61,7 +61,7 @@ function Cart() {
 
           <button
             onClick={clearCart}
-            className="rounded-lg border border-red-500 px-4 py-2 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
+            className="rounded-lg border border-gray-400 px-4 py-2 font-semibold text-gray-600 transition hover:bg-gray-700 hover:text-white hover:border-gray-700"
           >
             Clear Cart
           </button>
@@ -69,16 +69,14 @@ function Cart() {
 
         <div className="grid gap-8 lg:grid-cols-3">
 
-   
           <div className="space-y-5 lg:col-span-2">
 
             {cart.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center"
+                className="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-sm border border-gray-200 sm:flex-row sm:items-center"
               >
 
-           
                 <div className="flex h-32 w-full items-center justify-center rounded-xl bg-gray-100 sm:w-32">
                   <img
                     src={item.image}
@@ -88,7 +86,7 @@ function Cart() {
                 </div>
 
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-xl font-bold text-gray-800">
                     {item.name}
                   </h2>
 
@@ -96,41 +94,39 @@ function Cart() {
                     {item.category}
                   </p>
 
-                  <p className="mt-3 text-xl font-bold text-blue-600">
+                  <p className="mt-3 text-xl font-bold text-gray-700">
                     ${item.price.toFixed(2)}
                   </p>
                 </div>
 
-               
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => decreaseQuantity(item.id)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-xl font-bold hover:bg-gray-100"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-xl font-bold text-gray-700 hover:bg-gray-100"
                   >
                     −
                   </button>
 
-                  <span className="w-8 text-center text-lg font-bold">
+                  <span className="w-8 text-center text-lg font-bold text-gray-800">
                     {item.quantity}
                   </span>
 
                   <button
                     onClick={() => addToCart(item)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-xl font-bold text-white hover:bg-blue-700"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-800 text-xl font-bold text-white hover:bg-gray-900"
                   >
                     +
                   </button>
                 </div>
 
-              
                 <div className="text-right">
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-gray-800">
                     ${(item.price * item.quantity).toFixed(2)}
                   </p>
 
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="mt-2 text-sm font-semibold text-red-500 hover:text-red-700"
+                    className="mt-2 text-sm font-semibold text-gray-500 hover:text-gray-800"
                   >
                     Remove
                   </button>
@@ -139,13 +135,12 @@ function Cart() {
             ))}
           </div>
 
-         
-          <div className="h-fit rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="mb-6 text-2xl font-bold text-gray-900">
+          <div className="h-fit rounded-2xl bg-white p-6 shadow-sm border border-gray-200">
+            <h2 className="mb-6 text-2xl font-bold text-gray-800">
               Order Summary
             </h2>
 
-            <div className="space-y-4 border-b pb-5">
+            <div className="space-y-4 border-b border-gray-200 pb-5">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
@@ -157,16 +152,16 @@ function Cart() {
               </div>
             </div>
 
-            <div className="flex justify-between py-5 text-xl font-bold">
+            <div className="flex justify-between py-5 text-xl font-bold text-gray-800">
               <span>Total</span>
-              <span className="text-blue-600">
+              <span className="text-gray-900">
                 ${total.toFixed(2)}
               </span>
             </div>
 
             <Link
               to="/checkout"
-              className="block w-full rounded-lg bg-blue-600 py-3 text-center font-bold text-white transition hover:bg-blue-700"
+              className="block w-full rounded-lg bg-gray-800 py-3 text-center font-bold text-white transition hover:bg-gray-900"
             >
               Proceed to Checkout
             </Link>

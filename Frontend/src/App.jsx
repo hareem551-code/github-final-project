@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 // Components
@@ -10,6 +9,7 @@ import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import Categories from "./pages/Categories";
+import Stores from "./pages/Stores";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
@@ -19,6 +19,8 @@ import VendorDashboard from "./pages/VendorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Deals from "./pages/Deals";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -30,8 +32,6 @@ function App() {
       {/* Main Content */}
       <main className="flex-1">
         <Routes>
-
-          
 
           {/* Home */}
           <Route
@@ -55,6 +55,12 @@ function App() {
           <Route
             path="/categories"
             element={<Categories />}
+          />
+
+          {/* Stores */}
+          <Route
+            path="/stores"
+            element={<Stores />}
           />
 
           {/* Deals */}
@@ -81,8 +87,6 @@ function App() {
             element={<OrderSuccess />}
           />
 
-          
-
           {/* Login */}
           <Route
             path="/login"
@@ -95,6 +99,18 @@ function App() {
             element={<Register />}
           />
 
+          {/* Forgot Password */}
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
+
+          {/* Reset Password */}
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPassword />}
+          />
+
           <Route
             path="/vendor"
             element={<VendorDashboard />}
@@ -105,8 +121,6 @@ function App() {
             element={<VendorDashboard />}
           />
 
-          
-
           <Route
             path="/admin"
             element={<AdminDashboard />}
@@ -116,8 +130,6 @@ function App() {
             path="/admin/dashboard"
             element={<AdminDashboard />}
           />
-
-          
 
           <Route
             path="*"

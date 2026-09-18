@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import useCartStore from "../store/cartStore";
@@ -149,6 +148,13 @@ function Navbar() {
             </Link>
 
             <Link
+              to="/stores"
+              className="whitespace-nowrap text-base font-semibold text-white transition duration-200 hover:text-black"
+            >
+              Stores
+            </Link>
+
+            <Link
               to="/deals"
               className="whitespace-nowrap text-base font-semibold text-white transition duration-200 hover:text-black"
             >
@@ -268,6 +274,14 @@ function Navbar() {
               </Link>
 
               <Link
+                to="/stores"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-5 py-3 text-base font-semibold text-white transition duration-200 hover:bg-gray-600 hover:text-black"
+              >
+                Stores
+              </Link>
+
+              <Link
                 to="/deals"
                 onClick={() => setMenuOpen(false)}
                 className="rounded-lg px-5 py-3 text-base font-semibold text-white transition duration-200 hover:bg-gray-600 hover:text-black"
@@ -317,4 +331,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
